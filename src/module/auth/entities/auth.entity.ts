@@ -10,6 +10,12 @@ import {
   
   @Entity('auth')
   export class Auth {
+    static findAll(arg0: { attributes: { exclude: string[]; }; include: { model: typeof import("../../article/entities/article.entity").Article; attributes: string[]; }[]; }) {
+      throw new Error('Method not implemented.');
+    }
+    static create(arg0: { email: string; username: string; password: any; otp: any; }) {
+      throw new Error('Method not implemented.');
+    }
     articles: any;
     static findOne(arg0: { where: { email: string; }; raw: boolean; }) {
       throw new Error('Method not implemented.');
