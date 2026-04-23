@@ -1,46 +1,21 @@
-import { DataTypes, Optional } from "sequelize";
-import { BelongsTo, Column, ForeignKey, Model, Table } from "sequelize-typescript";
-import { Auth } from "../../auth/entities/auth.entity"; // Adjust the path as necessary
+import { Entity, PrimaryColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Auth } from '../../auth/entities/auth.entity';
 
-interface AuthAttributes {
-    id: number;
-    username: string;
-    email: string;
-    password: string;
-    otp: string;
+@Entity('articles')
+export class Article {
+  @PrimaryColumn({ type: 'int', generated: 'increment' })
+  id: number;
+
+  @Column({ type: 'varchar', nullable: false })
+  title: string;
+
+  @Column({ type: 'text', nullable: false })
+  content: string;
+
+  @Column({ type: 'int', nullable: false })
+  userId: number;
+
+  @ManyToOne(() => Auth, (auth) => auth.articles)
+  @JoinColumn({ name: 'userId' })
+  auth: Auth;
 }
-
-type AuthAttributesTypes = Optional<AuthAttributes, 'id'>;
-
-@Table
-export class Article extends Model<AuthAttributes, AuthAttributesTypes> {
-    
- @Column({
-    type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true,
-    allowNull: false
- })
- declare id: number;
- @Column({
-    type: DataTypes.STRING,
-    allowNull: false,
- })
-   title: string;
-    @Column({
-        type: DataTypes.STRING,
-        allowNull: false,
- } )
- content: string;
-
- @ForeignKey(() => Auth)
- @Column({
-    type: DataTypes.INTEGER,
-    allowNull: false,
- })
- userid!: number;
- @BelongsTo(() => Auth)
- user_id!: Auth;
-}
-
-

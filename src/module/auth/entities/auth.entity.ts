@@ -10,6 +10,7 @@ import {
   
   @Entity('auth')
   export class Auth {
+    articles: any;
     static findOne(arg0: { where: { email: string; }; raw: boolean; }) {
       throw new Error('Method not implemented.');
     }

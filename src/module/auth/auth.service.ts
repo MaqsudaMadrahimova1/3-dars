@@ -8,6 +8,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class AuthService {
+  register(createAuthDto: CreateAuthDto) {
+    throw new Error('Method not implemented.');
+  }
+  findAll() {
+    throw new Error('Method not implemented.');
+  }
   constructor(@InjectRepository(Auth) private authRepo: typeof Auth) {}
 
   //  async register(createAuthDto: CreateAuthDto) {
