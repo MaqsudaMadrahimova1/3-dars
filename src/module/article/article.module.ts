@@ -4,7 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
 import { ArticleService } from './article.service';
 import { ArticleController } from './article.controller';
-import { Article } from '../model/article.entity';
+import { Article } from './entities/article.entity';
 
 @Module({
   imports: [

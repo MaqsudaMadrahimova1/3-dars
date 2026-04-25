@@ -15,6 +15,9 @@ export class Article {
   @Column({ type: 'int', nullable: false })
   userId: number;
 
+  @Column({ type: 'varchar', nullable: true })
+  image: string;
+
   @ManyToOne(() => Auth, (auth) => auth.articles)
   @JoinColumn({ name: 'userId' })
   auth: Auth;
