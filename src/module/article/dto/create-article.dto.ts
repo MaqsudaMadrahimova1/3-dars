@@ -18,4 +18,5 @@ export class CreateArticleDto {
   @IsNumber()
   @IsNotEmpty()
   userId: number;
+  file?: Express.Multer.File;
 }
