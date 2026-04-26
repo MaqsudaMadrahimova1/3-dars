@@ -1,11 +1,13 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import * as nodemailer from 'nodemailer';
+import { JwtService } from '@nestjs/jwt';
 import { Auth } from './entities/auth.entity';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
+import { VerifyDto } from './dto/verify.dto';
 
 @Injectable()
 export class AuthService {
@@ -19,7 +21,8 @@ export class AuthService {
 
   constructor(
     @InjectRepository(Auth)
-    private authRepo: Repository<Auth>
+    private authRepo: Repository<Auth>,
+    private jwtService: JwtService,
   ) {}
 
   async register(createAuthDto: CreateAuthDto) {
@@ -30,12 +33,14 @@ export class AuthService {
 
     const hashPassword = await bcrypt.hash(createAuthDto.password, 10);
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpTime = Date.now() + 120000;
 
     const newUser = this.authRepo.create({
       email: createAuthDto.email,
       username: createAuthDto.username,
       password: hashPassword,
-      otp: otp
+      otp,
+      otpTime,
     });
 
     await this.authRepo.save(newUser);
@@ -54,9 +59,9 @@ export class AuthService {
       const otp = Array.from({ length: 6 }, () =>
         Math.floor(Math.random() * 9)
       ).join("");
+      const otpTime = Date.now() + 120000;
 
-      const time = Date.now() + 120000; 
-      await this.authRepo.update(foundedUser.id, { otp });
+      await this.authRepo.update(foundedUser.id, { otp, otpTime });
 
       await this.transporter.sendMail({
         from: process.env.EMAIL,
@@ -66,18 +71,33 @@ export class AuthService {
         html: `<b>${otp}</b>`,
       });
 
-      return { message: "OTP emailga yuborildi", expireTime: time };
+      return { message: "OTP emailga yuborildi", expireTime: otpTime };
     } else {
       throw new BadRequestException("Email yoki parol noto'g'ri");
     }
   }
 
-  async verify(email: string, otp: string) {
-    const user = await this.authRepo.findOne({ where: { email } });
-    if (!user) throw new BadRequestException("Foydalanuvchi topilmadi");
-    if (user.otp !== otp) throw new BadRequestException("OTP noto'g'ri");
+  async verify(dto: VerifyDto) {
+    const { email, otp } = dto;
 
-    return { message: "Email tasdiqlandi" };
+    const foundeduser = await this.authRepo.findOne({ where: { email } });
+
+    const otpValidation = /^\d{6}$/.test(otp);
+
+    if (!otpValidation) throw new BadRequestException("Invalid otp");
+    if (!foundeduser) throw new UnauthorizedException("Email not found");
+    if (foundeduser.otp !== otp) throw new BadRequestException("Wrong otp");
+
+    const now = Date.now();
+    if (foundeduser.otpTime && foundeduser.otpTime < now)
+      throw new BadRequestException("Otp expired");
+
+    await this.authRepo.update(foundeduser.id, { otp: "", otpTime: 0 });
+
+    const payload = { id: foundeduser.id, username: foundeduser.username, role: foundeduser.role };
+    return {
+      access_token: await this.jwtService.signAsync(payload),
+    };
   }
 
   async findAll() {

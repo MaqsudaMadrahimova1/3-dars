@@ -30,8 +30,7 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'Email tasdiqlandi' })
   @ApiBadRequestResponse({ description: 'OTP noto\'g\'ri' })
   verify(@Body() verifyDto: VerifyDto) {
-    return this.authService.verify(verifyDto.email, verifyDto.otp);
-  }
+    return this.authService.verify(verifyDto);  }
 
   @Get()
   @ApiOperation({ summary: 'Barcha foydalanuvchilar' })

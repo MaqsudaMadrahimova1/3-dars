@@ -1,5 +1,7 @@
-import { Entity, PrimaryColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryColumn, Column, ManyToOne, ManyToMany, JoinColumn, JoinTable } from 'typeorm';
 import { Auth } from '../../auth/entities/auth.entity';
+import { Tag } from 'src/tag/entities/tag.entity';
+
 
 @Entity('articles')
 export class Article {
@@ -18,7 +20,13 @@ export class Article {
   @Column({ type: 'varchar', nullable: true })
   image: string;
 
-  @ManyToOne(() => Auth, (auth) => auth.articles)
+  @ManyToOne(() => Auth, (user) => user.tags, {nullable: false, cascade:true})
   @JoinColumn({ name: 'userId' })
-  auth: Auth;
+  // createdBy: Auth;
+  author: Auth;
+
+  @ManyToMany(() => Tag, (tag) => tag.articles,{nullable:false})
+  @JoinTable({name: "tag_id"})
+  tags?: Tag[];
+ 
 }

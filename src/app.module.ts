@@ -6,6 +6,8 @@ import { ArticleModule } from './module/article/article.module';
 import { Auth } from './module/auth/entities/auth.entity';
 import { Article } from './module/article/entities/article.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { TagModule } from './tag/tag.module';
+import { Tag } from './tag/entities/tag.entity';
 
 
 @Module({
@@ -18,13 +20,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       database:String(process.env.DB_NAME as string),
       password:String(process.env.DB_PASSWORD as string),
       // models:[Auth,Article],
-      entities:[Auth,Article],
+      entities:[Auth,Article, Tag],
       synchronize:true,
       logging:false
 
     }),
     AuthModule,
-    ArticleModule
+    ArticleModule,
+    TagModule
   ],
   controllers: [],
   providers: [],

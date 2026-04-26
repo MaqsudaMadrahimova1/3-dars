@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsString, MaxLength, MinLength } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsArray, IsInt, IsNotEmpty, IsNumber, IsString, MaxLength, MinLength } from 'class-validator';
+import { Tag } from 'src/tag/entities/tag.entity';
 
 export class CreateArticleDto {
   @ApiProperty({ example: 'Mening maqolam', description: 'Maqola sarlavhasi' })
@@ -13,6 +15,15 @@ export class CreateArticleDto {
   @IsString()
   @IsNotEmpty()
   content: string;
+
+  @Transform(({ value }) => {
+    typeof value === 'string' ? value.split(',')
+    .map((item) => Number(item)) : value
+  })
+  @IsArray()
+  @IsInt({each: true})
+  tags!:any
+
 
   @ApiProperty({ example: 1, description: 'Foydalanuvchi ID si' })
   @IsNumber()
