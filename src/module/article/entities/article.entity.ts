@@ -28,5 +28,6 @@ export class Article {
   @ManyToMany(() => Tag, (tag) => tag.articles,{nullable:false})
   @JoinTable({name: "tag_id"})
   tags?: Tag[];
+  backgroundImage: string;
  
 }

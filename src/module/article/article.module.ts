@@ -5,10 +5,11 @@ import { JwtModule } from '@nestjs/jwt';
 import { ArticleService } from './article.service';
 import { ArticleController } from './article.controller';
 import { Article } from './entities/article.entity';
+import { Tag } from 'src/tag/entities/tag.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Article]),
+    TypeOrmModule.forFeature([Article,Tag]),
     JwtModule.register({
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '1d' },
