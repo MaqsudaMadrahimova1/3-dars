@@ -35,17 +35,34 @@ export class ArticleService {
     return await this.articleRepo.save(article);
   }
 
-  async findAll(query: QueryDto): Promise<Article[]> {
-    const {page = 1, limit = 10, search} = query
-    const queryBuilder = await this.articleRepo.createQueryBuilder("article")
-   .leftJoinAndSelect("article.tags", "tags")
-   .where("article.deletedAt is null")
-   
+  async findAll(queryDto: QueryDto) {
+    const { page = 1, limit = 10, search } = queryDto;
 
-   if(search){
-    queryBuilder.andWhere("article.title ILIKE: search or articles.", {search: `%${search}`})
-   }
-    return await this.articleRepo.find();
+    const queryBuilder = this.articleRepo.createQueryBuilder('article')
+      .leftJoinAndSelect('article.tags', 'tags')
+      .where('article.deletedAt is null');
+
+    if (search) {
+      queryBuilder.andWhere(
+        'article.title ILIKE :search or article.content ILIKE :search or tags.name ILIKE :search',
+        { search: `%${search}%` }
+      );
+    }
+
+    const result = await queryBuilder
+      .orderBy('article.createdAt', 'DESC')
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getMany();
+
+    const total = await queryBuilder.getCount();
+
+    return {
+      totalPage: Math.ceil(total / limit),
+      prev: page > 1 ? (page - 1) : undefined,
+      next: page * limit < total ? (page + 1) : undefined,
+      result,
+    };
   }
 
   async findOne(id: number): Promise<Article> {
@@ -71,7 +88,6 @@ export class ArticleService {
     if (!article) {
       throw new NotFoundException('Article not found');
     }
-
 
     if (updateArticleDto.title !== undefined) {
       article.title = updateArticleDto.title;
