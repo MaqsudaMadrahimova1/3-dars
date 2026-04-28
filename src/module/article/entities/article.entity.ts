@@ -1,6 +1,7 @@
-import { Entity, PrimaryColumn, Column, ManyToOne, ManyToMany, JoinColumn, JoinTable } from 'typeorm';
+import { Entity, PrimaryColumn, Column, ManyToOne, ManyToMany, JoinColumn, JoinTable, OneToMany } from 'typeorm';
 import { Auth } from '../../auth/entities/auth.entity';
 import { Tag } from 'src/tag/entities/tag.entity';
+import { ArticleImage } from './article_image.entity';
 
 
 @Entity('articles')
@@ -29,5 +30,7 @@ export class Article {
   @JoinTable({name: "tag_id"})
   tags?: Tag[];
   backgroundImage: string;
+  @OneToMany(() => ArticleImage,(article_image) => article_image.article)
+  images: ArticleImage[];
  
 }
