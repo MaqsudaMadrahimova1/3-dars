@@ -13,7 +13,6 @@ async function bootstrap() {
     forbidNonWhitelisted: true,
     whitelist: true,
   }));
-
   app.useGlobalFilters(new HttpExceptionFilter ());
   app.useGlobalInterceptors(new ResponseInterceptor());
 
